@@ -3,6 +3,7 @@ from apiclient.http import MediaFileUpload
 from oauth2client import file, client, tools
 from apiclient.discovery import build
 from httplib2 import Http
+from os.path import expanduser
 
 FILE_ID = '1p_wGW4VdSSHqaUFmxtlRSFnZ0-YCVwwa014ncVXNPfk'
 
@@ -15,10 +16,10 @@ FILE_ID = '1p_wGW4VdSSHqaUFmxtlRSFnZ0-YCVwwa014ncVXNPfk'
 #     'https://www.googleapis.com/auth/spreadsheets'
 # Setup the Sheets API
 SCOPES = 'https://www.googleapis.com/auth/drive'
-store = file.Storage('credentials.json')
+store = file.Storage(expanduser('~') + '/credentials.json')
 creds = store.get()
 if not creds or creds.invalid:
-    flow = client.flow_from_clientsecrets('client_secret.json', SCOPES)
+    flow = client.flow_from_clientsecrets(expanduser('~') + '/client_secret.json', SCOPES)
     creds = tools.run_flow(flow, store)
 service = build('drive', 'v3', http=creds.authorize(Http()))
 
