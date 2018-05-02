@@ -74,11 +74,11 @@ for day in range(1, maxDays + 1):
 outputFile.write("\n")
 
 sortedUsers.sort(key=lambda v: v.upper())
-print "SORT FUNCTION"
-print sortedUsers
+#print "SORT FUNCTION"
+#print sortedUsers
 
 for username in sortedUsers:
-    print username
+#print username
     user = users[username]
     outputFile.write(username + ', ')
 
