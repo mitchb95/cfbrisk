@@ -39,5 +39,30 @@ updatedFile = service.files().update(
         body=file_metadata,
         media_body=media).execute()
 
+sheetsService = discovery.build('sheets', 'v4', http=creds.authorize(Http()))
+
+sheet_metadata = sheetsService.spreadsheets().get(spreadsheetId=FILE_ID).execute()
+sheets = sheet_metadata.get('sheets', '')
+title = sheets[0].get("properties", {}).get("title", "CFB Risk")
+sheetId = sheets[0].get("properties", {}).get("sheetId", 0)
+print sheetId
+
+reqs = {'requests': [
+    # frozen row 1
+    {'updateSheetProperties': {
+        'properties': { 'sheetId' : sheetId, 'gridProperties': {'frozenRowCount': 1}},
+        'fields': 'gridProperties.frozenRowCount',
+    }},
+    # embolden row 1
+    {'repeatCell': {
+        'range': {'sheetId' : sheetId, 'endRowIndex': 1},
+        'cell': {'userEnteredFormat': {'textFormat': {'bold': True}}},
+        'fields': 'userEnteredFormat.textFormat.bold',
+    }}
+]}
+
+res = sheetsService.spreadsheets().batchUpdate(
+        spreadsheetId=FILE_ID, body=reqs).execute()
+
 # TODO: Change code below to process the `response` dict:
-print updatedFile.get('id')
+print res.get('id')
