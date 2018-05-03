@@ -26,7 +26,7 @@ service = build('drive', 'v3', http=creds.authorize(Http()))
 currentFile = service.files().get(fileId=FILE_ID).execute()
 
 file_metadata = {
-    'name': 'CFB Risk',
+    'name': '/r/ForidaGatorsPREMIUM Counterintelligence',
     'mimeType': 'application/vnd.google-apps.spreadsheet'
 }
 
@@ -43,7 +43,7 @@ sheetsService = discovery.build('sheets', 'v4', http=creds.authorize(Http()))
 
 sheet_metadata = sheetsService.spreadsheets().get(spreadsheetId=FILE_ID).execute()
 sheets = sheet_metadata.get('sheets', '')
-title = sheets[0].get("properties", {}).get("title", "CFB Risk")
+title = sheets[0].get("properties", {}).get("title", "/r/FloridaGatorsPREMIUM Counterintelligence")
 sheetId = sheets[0].get("properties", {}).get("sheetId", 0)
 print sheetId
 

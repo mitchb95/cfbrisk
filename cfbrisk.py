@@ -71,6 +71,7 @@ outputFile = open('results.csv', 'w')
 outputFile.write('Username, PREMIUM?, Current Stars, Team, ')
 for day in range(1, maxDays + 1):
     outputFile.write('Day ' + str(day) + ' Action, ')
+outputFile.write('Notes')
 outputFile.write("\n")
 
 sortedUsers.sort(key=lambda v: v.upper())
@@ -96,12 +97,18 @@ for username in sortedUsers:
             team = TEAM_MAP[user['team'][str(i)]]
     outputFile.write(str(team) + ', ')
 
+    vote = '.'
     for i in range(1, maxDays + 1):
         if str(i) in user['votes'].keys():
             vote = TEAM_MAP[user['votes'][str(i)]]
             outputFile.write(str(vote) + ', ')
         else:
             outputFile.write('N/A, ')
+
+    if vote is '.':
+        outputFile.write('No participation, ')
+    else:
+        outputFile.write(', ')
 
     outputFile.write('\n')
 
