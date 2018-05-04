@@ -81,15 +81,11 @@ def createUser(username, table):
 
 def writeUsersVoting(sortedUsers, users):
 
-    maxDays = 0
-    for username, user in users.iteritems():
-        if len(user['votes']) > maxDays:
-            maxDays = len(user['votes'])
-
     outputFile = open('results.csv', 'w')
 
     outputFile.write('Username, PREMIUM?, Current Stars, Team, ')
-    for day in range(1, maxDays + 1):
+    for day in range(1, NUM_DAYS + 1):
+        print day
         outputFile.write('Day ' + str(day) + ' Action, ')
     outputFile.write('Notes')
     outputFile.write('\n')
@@ -103,19 +99,19 @@ def writeUsersVoting(sortedUsers, users):
         outputFile.write(', ')
 
         stars = -1
-        for i in range(1, maxDays + 1):
+        for i in range(1, NUM_DAYS + 1):
             if str(i) in user['stars'].keys():
                 stars = STARS_MAP[user['stars'][str(i)]]
         outputFile.write(str(stars) + ', ')
 
         team = 'UF'
-        for i in range(1, maxDays + 1):
+        for i in range(1, NUM_DAYS + 1):
             if str(i) in user['team'].keys():
                 team = TEAM_MAP[user['team'][str(i)]]
         outputFile.write(str(team) + ', ')
 
         vote = '.'
-        for i in range(1, maxDays + 1):
+        for i in range(1, NUM_DAYS + 1):
             if str(i) in user['votes'].keys():
                 vote = TEAM_MAP[user['votes'][str(i)]]
                 outputFile.write(str(vote) + ', ')
@@ -184,7 +180,7 @@ def createUsers(territory):
 def writeUsersVotingFull(territories, users):
     outputFile = open('resultsFull.csv', 'w')
 
-    outputFile.write('Username, Current Stars, Team, ')
+    outputFile.write('Username, Current Stars, Current Team, ')
     for day in range(1, NUM_DAYS + 1):
         outputFile.write('Day ' + str(day) + ' Action, ')
     outputFile.write('\n')
@@ -221,7 +217,7 @@ def writeUsersVotingFull(territories, users):
     outputFile.close()
 
 
-#createVotingHistoryCSV()
+createVotingHistoryCSV()
 users = {}
 territories = getTerritories()
 
@@ -229,4 +225,3 @@ for territory in territories:
    users.update(createUsers(territory))
 
 writeUsersVotingFull(territories, users)
-
