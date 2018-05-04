@@ -64,15 +64,15 @@ def createUser(username, table):
             team_td = cells[1]
             for img in team_td.find_all('img'):
                 team = img['src']
-                user['team'][day] = team
+                user['team'][day] = TEAM_MAP[team]
             territory_td = cells[2]
             for img in territory_td.find_all('img'):
                 territory = img['src']
-                user['votes'][day] = territory
+                user['votes'][day] = TEAM_MAP[territory]
             stars_td = cells[3]
             for img in stars_td.find_all('img'):
                 stars = img['src']
-                user['stars'][day] = stars
+                user['stars'][day] = STARS_MAP[stars]
             multiplier = cells[4].renderContents()
             user['multipliers'][day] = multiplier
             mvp = cells[5].renderContents()
@@ -101,19 +101,19 @@ def writeUsersVoting(sortedUsers, users):
         stars = -1
         for i in range(1, NUM_DAYS + 1):
             if str(i) in user['stars'].keys():
-                stars = STARS_MAP[user['stars'][str(i)]]
+                stars = user['stars'][str(i)]
         outputFile.write(str(stars) + ', ')
 
         team = 'UF'
         for i in range(1, NUM_DAYS + 1):
             if str(i) in user['team'].keys():
-                team = TEAM_MAP[user['team'][str(i)]]
+                team = user['team'][str(i)]
         outputFile.write(str(team) + ', ')
 
         vote = '.'
         for i in range(1, NUM_DAYS + 1):
             if str(i) in user['votes'].keys():
-                vote = TEAM_MAP[user['votes'][str(i)]]
+                vote = user['votes'][str(i)]
                 outputFile.write(str(vote) + ', ')
             else:
                 outputFile.write('N/A, ')
@@ -195,19 +195,19 @@ def writeUsersVotingFull(territories, users):
         stars = -1
         for i in range(1, NUM_DAYS + 1):
             if str(i) in user['stars'].keys():
-                stars = STARS_MAP[user['stars'][str(i)]]
+                stars = user['stars'][str(i)]
         outputFile.write(str(stars) + ', ')
 
         team = 'Unknown'
         for i in range(1, NUM_DAYS + 1):
             if str(i) in user['team'].keys():
-                team = TEAM_MAP[user['team'][str(i)]]
+                team = user['team'][str(i)]
         outputFile.write(str(team) + ', ')
 
         vote = '.'
         for i in range(1, NUM_DAYS + 1):
             if str(i) in user['votes'].keys():
-                vote = TEAM_MAP[user['votes'][str(i)]]
+                vote = user['votes'][str(i)]
                 outputFile.write(str(vote) + ', ')
             else:
                 outputFile.write('N/A, ')
@@ -218,6 +218,7 @@ def writeUsersVotingFull(territories, users):
 
 
 createVotingHistoryCSV()
+'''
 users = {}
 territories = getTerritories()
 
@@ -225,3 +226,4 @@ for territory in territories:
    users.update(createUsers(territory))
 
 writeUsersVotingFull(territories, users)
+'''
