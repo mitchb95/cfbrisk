@@ -216,8 +216,34 @@ def writeUsersVotingFull(territories, users):
 
     outputFile.close()
 
+def writeUsersTeamFull(territories, users):
+    outputFile = open('resultsTeamFull.csv', 'w')
 
-createVotingHistoryCSV()
+    outputFile.write('Username, ')
+    for day in range(1, NUM_DAYS + 1):
+        outputFile.write('Day ' + str(day) + ' Team, ')
+    outputFile.write('\n')
+
+    sortedUsers = users.keys()
+    sortedUsers.sort(key=lambda v: v.upper())
+
+    for username in sortedUsers:
+        user = users[username]
+        outputFile.write(username + ', ')
+
+        for i in range(1, NUM_DAYS + 1):
+            if str(i) in user['team'].keys():
+                team = user['team'][str(i)]
+                outputFile.write(str(team) + ', ')
+            else:
+                outputFile.write('N/A, ')
+
+        outputFile.write('\n')
+
+    outputFile.close()
+
+
+#createVotingHistoryCSV()
 users = {}
 territories = getTerritories()
 
@@ -225,3 +251,4 @@ for territory in territories:
    users.update(createUsers(territory))
 
 writeUsersVotingFull(territories, users)
+writeUsersTeamFull(territories, users)
