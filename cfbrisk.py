@@ -250,5 +250,5 @@ territories = getTerritories()
 for territory in territories:
    users.update(createUsers(territory))
 
-#writeUsersVotingFull(territories, users)
+writeUsersVotingFull(territories, users)
 writeUsersTeamFull(territories, users)
