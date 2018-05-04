@@ -218,7 +218,6 @@ def writeUsersVotingFull(territories, users):
 
 
 createVotingHistoryCSV()
-'''
 users = {}
 territories = getTerritories()
 
@@ -226,4 +225,3 @@ for territory in territories:
    users.update(createUsers(territory))
 
 writeUsersVotingFull(territories, users)
-'''
