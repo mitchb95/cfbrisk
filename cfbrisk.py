@@ -64,7 +64,10 @@ def createUser(username, table):
             team_td = cells[1]
             for img in team_td.find_all('img'):
                 team = img['src']
-                user['team'][day] = TEAM_MAP[team]
+                try:
+                    user['team'][day] = TEAM_MAP[team]
+                except KeyError:
+                    user['team'][day] = "Error"
             territory_td = cells[2]
             for img in territory_td.find_all('img'):
                 territory = img['src']
