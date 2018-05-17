@@ -6,7 +6,7 @@ from oauth2client import file, client, tools
 from apiclient.discovery import build
 from httplib2 import Http
 from os.path import expanduser
-#import scraper
+import scraper
 
 dateStart = date(2018, 4, 30)
 dateEnd = date.today()
