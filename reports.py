@@ -1,10 +1,18 @@
 from pymongo import MongoClient
 from datetime import date
+from googleapiclient import discovery
+from apiclient.http import MediaFileUpload
+from oauth2client import file, client, tools
+from apiclient.discovery import build
+from httplib2 import Http
+from os.path import expanduser
 
 dateStart = date(2018, 4, 30)
 dateEnd = date.today()
 delta = dateEnd - dateStart
 NUM_DAYS = delta.days
+
+VOTES_FILE_ID = '120dt3ilg4HwlNaYwgeER_k_H9Gu1xVJ_eDPzQTH5ulE'
 
 def writeActiveUsers(days, teams):
     participationFile = open('active_users.csv', 'w')
@@ -38,7 +46,6 @@ def writeVotingHistory(users, days, teams):
     for user in users:
         votingHistoryFile.write(user + ',')
         for day in days:
-            print str(day) + " " + user
             vote = votes.find_one({'day' : str(day), 'username' : user})
             if vote is None:
                 votingHistoryFile.write('N/A,')
@@ -47,6 +54,45 @@ def writeVotingHistory(users, days, teams):
         votingHistoryFile.write('\n')
     
     votingHistoryFile.close()
+
+    currentFile = service.files().get(fileId=VOTES_FILE_ID).execute()
+
+    file_metadata = {
+        'name': 'CFB Risk Full Voting History',
+        'mimeType': 'application/vnd.google-apps.spreadsheet'
+    }
+
+    media = MediaFileUpload('voting_history.csv',
+            mimetype='text/csv',
+            resumable=True)
+
+    updatedFile = service.files().update(
+            fileId=FULL_FILE_ID,
+            body=file_metadata,
+            media_body=media).execute()
+
+    sheet_metadata = sheetsService.spreadsheets().get(spreadsheetId=FULL_FILE_ID).execute()
+    sheets = sheet_metadata.get('sheets', '')
+    title = sheets[0].get("properties", {}).get("title", "CFB Risk Full Voting History")
+    sheetId = sheets[0].get("properties", {}).get("sheetId", 0)
+    print sheetId
+
+    reqs = {'requests': [
+        # frozen row 1
+        {'updateSheetProperties': {
+            'properties': { 'sheetId' : sheetId, 'gridProperties': {'frozenRowCount': 1}},
+            'fields': 'gridProperties.frozenRowCount',
+        }},
+        # embolden row 1
+        {'repeatCell': {
+            'range': {'sheetId' : sheetId, 'endRowIndex': 1},
+            'cell': {'userEnteredFormat': {'textFormat': {'bold': True}}},
+            'fields': 'userEnteredFormat.textFormat.bold',
+        }}
+    ]}
+
+    res = sheetsService.spreadsheets().batchUpdate(
+            spreadsheetId=FULL_FILE_ID, body=reqs).execute()
 
 def writeActiveStars(days, teams):
     participationFile = open('active_stars.csv', 'w')
