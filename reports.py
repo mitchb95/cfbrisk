@@ -6,6 +6,7 @@ from oauth2client import file, client, tools
 from apiclient.discovery import build
 from httplib2 import Http
 from os.path import expanduser
+#import scraper
 
 dateStart = date(2018, 4, 30)
 dateEnd = date.today()
@@ -52,15 +53,13 @@ def writeVotingHistory(users, days, teams):
 
     for user in users:
         votingHistoryFile.write(user + ',')
-        wroteTeam = False
+        vote = votes.find_one({'username' : user})
+        votingHistoryFile.write(vote['team'] + ',')
         for day in days:
             vote = votes.find_one({'day' : str(day), 'username' : user})
             if vote is None:
                 votingHistoryFile.write('N/A,')
             else:
-                if not wroteTeam:
-                    votingHistoryFile.write(vote['team'] + ',')
-                    wroteTeam = True
                 votingHistoryFile.write(vote['territory'] + ',')
         votingHistoryFile.write('\n')
     

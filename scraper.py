@@ -60,54 +60,6 @@ def createUser(username, table):
 
     return user
 
-def writeUsersVoting(sortedUsers, users):
-
-    outputFile = open('results.csv', 'w')
-
-    outputFile.write('Username, PREMIUM?, Current Stars, Team, ')
-    for day in range(1, NUM_DAYS + 1):
-        print day
-        outputFile.write('Day ' + str(day) + ' Action, ')
-    outputFile.write('Notes')
-    outputFile.write('\n')
-
-    sortedUsers.sort(key=lambda v: v.upper())
-
-    for username in sortedUsers:
-        user = users[username]
-        outputFile.write(username + ', ')
-
-        outputFile.write(', ')
-
-        stars = -1
-        for i in range(1, NUM_DAYS + 1):
-            if str(i) in user['stars'].keys():
-                stars = user['stars'][str(i)]
-        outputFile.write(str(stars) + ', ')
-
-        team = 'UF'
-        for i in range(1, NUM_DAYS + 1):
-            if str(i) in user['team'].keys():
-                team = user['team'][str(i)]
-        outputFile.write(str(team) + ', ')
-
-        vote = '.'
-        for i in range(1, NUM_DAYS + 1):
-            if str(i) in user['votes'].keys():
-                vote = user['votes'][str(i)]
-                outputFile.write(str(vote) + ', ')
-            else:
-                outputFile.write('N/A, ')
-
-        if vote is '.':
-            outputFile.write('No participation, ')
-        else:
-            outputFile.write(', ')
-
-        outputFile.write('\n')
-
-    outputFile.close()
-
 def getTerritories():
     teams = []
     i = 0
@@ -159,71 +111,6 @@ def getVotes(db, territory, day):
                 db.insert(vote)
                 print vote
 
-def writeUsersVotingFull(territories, users):
-    outputFile = open('resultsFull.csv', 'w')
-
-    outputFile.write('Username, Current Stars, Current Team, ')
-    for day in range(1, NUM_DAYS + 1):
-        outputFile.write('Day ' + str(day) + ' Action, ')
-    outputFile.write('\n')
-
-    sortedUsers = users.keys()
-    sortedUsers.sort(key=lambda v: v.upper())
-
-    for username in sortedUsers:
-        user = users[username]
-        outputFile.write(username + ', ')
-
-        stars = -1
-        for i in range(1, NUM_DAYS + 1):
-            if str(i) in user['stars'].keys():
-                stars = user['stars'][str(i)]
-        outputFile.write(str(stars) + ', ')
-
-        team = 'Unknown'
-        for i in range(1, NUM_DAYS + 1):
-            if str(i) in user['team'].keys():
-                team = user['team'][str(i)]
-        outputFile.write(str(team) + ', ')
-
-        vote = '.'
-        for i in range(1, NUM_DAYS + 1):
-            if str(i) in user['votes'].keys():
-                vote = user['votes'][str(i)]
-                outputFile.write(str(vote) + ', ')
-            else:
-                outputFile.write('N/A, ')
-
-        outputFile.write('\n')
-
-    outputFile.close()
-
-def writeUsersTeamFull(territories, users):
-    outputFile = open('resultsTeamFull.csv', 'w')
-
-    outputFile.write('Username, ')
-    for day in range(1, NUM_DAYS + 1):
-        outputFile.write('Day ' + str(day) + ' Team, ')
-    outputFile.write('\n')
-
-    sortedUsers = users.keys()
-    sortedUsers.sort(key=lambda v: v.upper())
-
-    for username in sortedUsers:
-        user = users[username]
-        outputFile.write(username + ', ')
-
-        for i in range(1, NUM_DAYS + 1):
-            if str(i) in user['team'].keys():
-                team = user['team'][str(i)]
-                outputFile.write(str(team) + ', ')
-            else:
-                outputFile.write('N/A, ')
-
-        outputFile.write('\n')
-
-    outputFile.close()
-
 client = MongoClient('192.168.1.200', 27017)
 votes_db = client.test_votes_db
 votes = votes_db.votes
@@ -232,5 +119,5 @@ users = Set()
 territories = getTerritories()
 
 for territory in territories:
-    getVotes(votes, territory, sys.argv[1])
+    getVotes(votes, territory, NUM_DAYS)
 
