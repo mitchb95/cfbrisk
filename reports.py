@@ -14,6 +14,7 @@ delta = dateEnd - dateStart
 NUM_DAYS = delta.days
 
 VOTES_FILE_ID = '120dt3ilg4HwlNaYwgeER_k_H9Gu1xVJ_eDPzQTH5ulE'
+TEAMS_FILE_ID = '135_Y2k18ZutKJaOJbOjdUsY1BDwftdavBCRXU0410EA'
 SCOPES = 'https://www.googleapis.com/auth/drive'
 store = file.Storage(expanduser('~') + '/credentials.json')
 creds = store.get()
@@ -43,6 +44,65 @@ def writeActiveUsers(days, teams):
         participationFile.write(str(votes.find({'day' : str(day)}).count()) + ',')
 
     participationFile.write('\n')
+
+def writeTeamHistory(users, days, teams):
+    teamsHistoryFile = open('teams_history.csv', 'w')
+    teamsHistoryFile.write('Username, ')
+    for day in days:
+        teamsHistoryFile.write('Day ' + str(day) + ',')
+    teamsHistoryFile.write('\n')
+
+    for user in users:
+        teamsHistoryFile.write(user + ',')
+        for day in days:
+            vote = votes.find_one({'day' : str(day), 'username' : user})
+            if vote is None:
+                teamsHistoryFile.write('N/A,')
+            else:
+                teamsHistoryFile.write(vote['team'] + ',')
+        teamsHistoryFile.write('\n')
+    
+    teamsHistoryFile.close()
+
+    currentFile = service.files().get(fileId=TEAMS_FILE_ID).execute()
+
+    file_metadata = {
+        'name': 'CFB Risk Full Teams History',
+        'mimeType': 'application/vnd.google-apps.spreadsheet'
+    }
+
+    media = MediaFileUpload('teams_history.csv',
+            mimetype='text/csv',
+            resumable=True)
+
+    updatedFile = service.files().update(
+            fileId=TEAMS_FILE_ID,
+            body=file_metadata,
+            media_body=media).execute()
+
+    sheetsService = discovery.build('sheets', 'v4', http=creds.authorize(Http()))
+    sheet_metadata = sheetsService.spreadsheets().get(spreadsheetId=TEAMS_FILE_ID).execute()
+    sheets = sheet_metadata.get('sheets', '')
+    title = sheets[0].get("properties", {}).get("title", "CFB Risk Full Team History")
+    sheetId = sheets[0].get("properties", {}).get("sheetId", 0)
+    print sheetId
+
+    reqs = {'requests': [
+        # frozen row 1
+        {'updateSheetProperties': {
+            'properties': { 'sheetId' : sheetId, 'gridProperties': {'frozenRowCount': 1}},
+            'fields': 'gridProperties.frozenRowCount',
+        }},
+        # embolden row 1
+        {'repeatCell': {
+            'range': {'sheetId' : sheetId, 'endRowIndex': 1},
+            'cell': {'userEnteredFormat': {'textFormat': {'bold': True}}},
+            'fields': 'userEnteredFormat.textFormat.bold',
+        }}
+    ]}
+
+    res = sheetsService.spreadsheets().batchUpdate(
+            spreadsheetId=TEAMS_FILE_ID, body=reqs).execute()
 
 def writeVotingHistory(users, days, teams):
     votingHistoryFile = open('voting_history.csv', 'w')
@@ -142,7 +202,6 @@ votes = votes_db.votes
 teams = votes.distinct('team')
 users = votes.distinct('username')
 
-#writeActiveUsers(days, teams)
-#writeActiveStars(days, teams)
-writeVotingHistory(users, range(1, NUM_DAYS+1), ['Florida'])
+#writeVotingHistory(users, range(1, NUM_DAYS+1), ['Florida'])
+writeTeamHistory(users, range(1, NUM_DAYS+1), ['Florida'])
 
