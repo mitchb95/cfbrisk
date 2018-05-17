@@ -13,6 +13,13 @@ delta = dateEnd - dateStart
 NUM_DAYS = delta.days
 
 VOTES_FILE_ID = '120dt3ilg4HwlNaYwgeER_k_H9Gu1xVJ_eDPzQTH5ulE'
+SCOPES = 'https://www.googleapis.com/auth/drive'
+store = file.Storage(expanduser('~') + '/credentials.json')
+creds = store.get()
+if not creds or creds.invalid:
+    flow = client.flow_from_clientsecrets(expanduser('~') + '/client_secret.json', SCOPES)
+    creds = tools.run_flow(flow, store)
+service = build('drive', 'v3', http=creds.authorize(Http()))
 
 def writeActiveUsers(days, teams):
     participationFile = open('active_users.csv', 'w')
@@ -45,11 +52,15 @@ def writeVotingHistory(users, days, teams):
 
     for user in users:
         votingHistoryFile.write(user + ',')
+        wroteTeam = False
         for day in days:
             vote = votes.find_one({'day' : str(day), 'username' : user})
             if vote is None:
                 votingHistoryFile.write('N/A,')
             else:
+                if not wroteTeam:
+                    votingHistoryFile.write(vote['team'] + ',')
+                    wroteTeam = True
                 votingHistoryFile.write(vote['territory'] + ',')
         votingHistoryFile.write('\n')
     
@@ -67,11 +78,12 @@ def writeVotingHistory(users, days, teams):
             resumable=True)
 
     updatedFile = service.files().update(
-            fileId=FULL_FILE_ID,
+            fileId=VOTES_FILE_ID,
             body=file_metadata,
             media_body=media).execute()
 
-    sheet_metadata = sheetsService.spreadsheets().get(spreadsheetId=FULL_FILE_ID).execute()
+    sheetsService = discovery.build('sheets', 'v4', http=creds.authorize(Http()))
+    sheet_metadata = sheetsService.spreadsheets().get(spreadsheetId=VOTES_FILE_ID).execute()
     sheets = sheet_metadata.get('sheets', '')
     title = sheets[0].get("properties", {}).get("title", "CFB Risk Full Voting History")
     sheetId = sheets[0].get("properties", {}).get("sheetId", 0)
@@ -92,7 +104,7 @@ def writeVotingHistory(users, days, teams):
     ]}
 
     res = sheetsService.spreadsheets().batchUpdate(
-            spreadsheetId=FULL_FILE_ID, body=reqs).execute()
+            spreadsheetId=VOTES_FILE_ID, body=reqs).execute()
 
 def writeActiveStars(days, teams):
     participationFile = open('active_stars.csv', 'w')
