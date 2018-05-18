@@ -88,7 +88,7 @@ def getVotes(db, territory, day):
         for row in table.findAll('tr'):
             vote = {}
             vote['territory'] = territory
-            vote['day'] = day
+            vote['day'] = str(day)
 
             cells = row.findAll('td')
             if len(cells) > 0:
