@@ -98,14 +98,14 @@ def getVotes(votes_db, territories_db, territory, day):
                 try:
                     territory_data['before'] = TEAM_MAP[team]
                 except KeyError:
-                    team = "Error"
+                    territory_data['before'] = 'Error'
 
             for img in after_td.find_all('img'):
                 team = img['src']
                 try:
                     territory_data['after'] = TEAM_MAP[team]
                 except KeyError:
-                    team = "Error"
+                    territory_data['after'] = 'Error'
 
             territories_db.insert(territory_data)
             
