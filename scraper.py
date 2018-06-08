@@ -69,7 +69,7 @@ def getTerritories():
 
     return teams
 
-def getVotes(db, territory, day):
+def getVotes(votes_db, territories_db, territory, day):
     url = TERRITORY_URL + territory.replace(' ', '%20').replace('&', '%26') + '&day=' + str(day)
     print url
     page = None
@@ -82,6 +82,33 @@ def getVotes(db, territory, day):
     soup = BeautifulSoup(page, 'html.parser')
 
     tables = soup.findAll('table')
+
+    ownerTable = tables[0]
+    for row in ownerTable.findAll('tr'):
+        territory_data = {}
+        territory_data['territory'] = territory
+        territory_data['day'] = str(day)
+        cells = row.findAll('td')
+        if len(cells) > 0:
+            before_td = cells[0]
+            after_td = cells[1]
+
+            for img in before_td.find_all('img'):
+                team = img['src']
+                try:
+                    territory_data['before'] = TEAM_MAP[team]
+                except KeyError:
+                    team = "Error"
+
+            for img in after_td.find_all('img'):
+                team = img['src']
+                try:
+                    territory_data['after'] = TEAM_MAP[team]
+                except KeyError:
+                    team = "Error"
+
+            territories_db.insert(territory_data)
+            
     if len(tables) == 2:
         table = tables[1]
 
@@ -108,16 +135,16 @@ def getVotes(db, territory, day):
                     stars = img['src']
                     vote['stars'] = STARS_MAP[stars]
 
-                db.insert(vote)
-                print vote
+                votes_db.insert(vote)
 
 client = MongoClient('192.168.1.200', 27017)
 votes_db = client.test_votes_db
 votes = votes_db.votes
+territories_db = votes_db.territories
 
 users = Set()
 territories = getTerritories()
 
 for territory in territories:
-    getVotes(votes, territory, NUM_DAYS)
+    getVotes(votes, territories_db, territory, NUM_DAYS)
 
