@@ -107,7 +107,10 @@ def getVotes(votes_db, territories_db, territory, day):
                 except KeyError:
                     territory_data['after'] = 'Error'
 
-            territories_db.insert(territory_data)
+            try:
+                territories_db.insert(territory_data)
+            except:
+                pass
             
     if len(tables) == 2:
         table = tables[1]
@@ -135,7 +138,10 @@ def getVotes(votes_db, territories_db, territory, day):
                     stars = img['src']
                     vote['stars'] = STARS_MAP[stars]
 
-                votes_db.insert(vote)
+                try:
+                    votes_db.insert(vote)
+                except:
+                    pass
 
 client = MongoClient('192.168.1.200', 27017)
 votes_db = client.test_votes_db
